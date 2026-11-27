@@ -252,7 +252,6 @@ h1.hero .ct.circle{width:1.4em;height:1.4em;padding:0}
       <div class="lcd" id="lcd">00:00</div>
       <button class="btn" id="pause" aria-label="pause timer">❚❚</button>
     </div>
-    <p class="best" id="best"></p>
   </section>
 
   <div class="rcol">
@@ -423,7 +422,6 @@ const S={started:false,level:"easy",seed:55,label:"",solution:[],grid:[],given:[
 let solved={easy:[],medium:[],hard:[]};try{Object.assign(solved,JSON.parse(localStorage.getItem("sg-solved")||"{}"))}catch(e){}
 
 const showProgress=()=>{const lv=S.level==="custom"?"easy":S.level,n=(solved[lv]||[]).length;$("#progress").textContent=`${n}/${COUNT} solved`;};
-let bestTimes={};try{bestTimes=JSON.parse(localStorage.getItem("sg-best")||"{}")}catch(e){}
 const fmt=t=>{const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60,p=n=>String(n).padStart(2,"0");return(h?h+":":"")+p(m)+":"+p(s)};
 
 const cells=[];
@@ -456,7 +454,7 @@ function start(P,level,label){
   document.querySelectorAll("[data-level]").forEach(b=>b.classList.toggle("on",b.dataset.level===level));
   $("#strats").innerHTML=TECH.filter(t=>P.used.has(t[0])).map(t=>`<li><details><summary>${t[0]}</summary><p>${t[2]}</p></details></li>`).join("");
   bw.classList.remove("paused","busy");$("#pause").textContent="❚❚";$("#pause").setAttribute("aria-label","pause timer");
-  tickDisplay();showBest();showProgress();render();
+  tickDisplay();showProgress();render();
 }
 function newGame(level,seed){
   if(!seed){const done=new Set(solved[level]||[]),left=[];for(let n=1;n<=COUNT;n++)if(!done.has(n)&&n!==S.seed)left.push(n);const pool=left.length?left:Array.from({length:COUNT},(_,n)=>n+1);seed=pool[Math.floor(Math.random()*pool.length)]}
@@ -508,9 +506,8 @@ function confetti(){
 function win(){
   S.done=true;S.sel=-1;render();
   let msg=`${S.level==="custom"?"your custom puzzle":S.level+" "+S.label.replace("puzzle ","").replace(" of "+COUNT,"")} solved in ${fmt(S.time)}.`;
-  if(S.level!=="custom"){const b=bestTimes[S.level];if(b==null||S.time<b){bestTimes[S.level]=S.time;msg+=" that's a new best time!";try{localStorage.setItem("sg-best",JSON.stringify(bestTimes))}catch(e){}}else msg+=` your best is ${fmt(b)}.`}
   if(S.level!=="custom"){const a=solved[S.level]=solved[S.level]||[];if(!a.includes(S.seed))a.push(S.seed);try{localStorage.setItem("sg-solved",JSON.stringify(solved))}catch(e){}showProgress()}
-  showBest();$("#wmsg").textContent=msg;
+  $("#wmsg").textContent=msg;
   const rows=[];for(let r=0;r<9;r++){const v=S.grid.slice(r*9,r*9+9);rows.push(`${v.slice(0,3).join(" ")} | ${v.slice(3,6).join(" ")} | ${v.slice(6).join(" ")}`);if(r===2||r===5)rows.push("------+-------+------")}
   $("#share").textContent=`sudoku lovers ♡ ${S.level} ${S.level==="custom"?"":S.label.replace("puzzle ","").replace(" of "+COUNT,"")} · ${fmt(S.time)}\n\n`+rows.join("\n");
   $("#cmsg").textContent="";openM("#winM");confetti();
