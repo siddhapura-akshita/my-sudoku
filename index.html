@@ -449,7 +449,6 @@ function render(){
   $("#notes").textContent="notes: "+(S.notesMode?"on":"off");$("#notes").classList.toggle("on",S.notesMode);
 }
 function tickDisplay(){$("#lcd").textContent=fmt(S.time)}
-function showBest(){const b=bestTimes[S.level];$("#best").textContent=S.level==="custom"?"custom puzzles don't count toward best times":b!=null?`best ${S.level} time: ${fmt(b)}`:`no ${S.level} best time yet`}
 
 function start(P,level,label){
   Object.assign(S,{started:false,level,label,solution:P.solution,grid:P.puzzle.slice(),given:P.puzzle.map(v=>v>0),notes:Array(81).fill(0),sel:-1,undo:[],time:0,done:false,paused:false});
